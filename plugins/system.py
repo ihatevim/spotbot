@@ -85,10 +85,10 @@ def pid(inp):
 
 @hook.command(autohelp=False)
 def bots(inp):
-    return "Reporting in! [Python] See https://uguubot.com | This is a fork of uguu made by ihatevim with integration of new APIs to replace previously depreciated APIs. Visit #Neptune and ask for more information. Source available at request."
+    return "Reporting in! [Python] See https://uguubot.com | This is a fork of uguu made by ihatevim with integration of new APIs to replace previously depreciated APIs."
 
 
 @hook.command(autohelp=False)
 def source(inp):
-    return "\x02uguubot\x02 - https://github.com/infinitylabs/uguubot | Spotify is a fork of uguu, the source code is not public but if you visit #Neptune, ihatevim will provide it on request."
+    return "\x02uguubot\x02 - https://github.com/ihatevim/spotbot | Spotify is a fork of uguu."
     
