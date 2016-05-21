@@ -39,7 +39,7 @@ def timefunction2(inp, nick="", reply=None, db=None, notice=None):
         time = filter(None, http.strip_html(soup.find('div', attrs={'id': re.compile('twd')}).renderContents().strip()))
         details = filter(None, http.strip_html(soup.find('div', attrs={'id': re.compile('dd')}).renderContents().strip()))
         prefix = filter(None, http.strip_html(soup.find('div', attrs={'id': re.compile('msgdiv')}).renderContents().strip()))
-    except IndexError:
+    except urllib2.HTTPError:
         return "Could not get time for that location."
 
     return formatting.output('Time', [u'{} {}, {}'.format(prefix.decode('ascii', 'ignore'), time, details)])
