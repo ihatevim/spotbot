@@ -22,11 +22,34 @@ def amazonsearch(inp):
         try:
             price = soup.find('div', attrs={'class': ('a-column a-span7')})
             price = http.strip_html(price.find('span'))
+            print price
         except AttributeError:
             price = soup.find('span', attrs={'class': ('a-size-medium a-color-price')})
-            price = http.strip_html(price)
+            try:
+                price = http.strip_html(price)
+            except TypeError:
+                price = soup.find('span', attrs={'class': ('a-size-base a-color-price s-price a-text-bold')})
+                price = http.strip_html(price)
         azid = re.match(r'^.*\/dp\/([\w]+)\/.*',url).group(1)
     except AttributeError:
-        return "Your search is too broad or I could not find any results."
+        request = urllib2.Request(url, None, headers)
+        page = urllib2.urlopen(request).read()
+        soup = BeautifulSoup(page, 'lxml')
+        soup = soup.find('li', attrs={'id': ('result_0')})
+        title = soup.find('h2')
+        title = title.renderContents()
+        url = soup.find('a', attrs={'class': ('a-link-normal s-access-detail-page a-text-normal')})
+        url = url.get('href')
+        try:
+            price = soup.find('div', attrs={'class': ('a-column a-span7')})
+            price = http.strip_html(price.find('span'))
+        except AttributeError:
+            price = soup.find('span', attrs={'class': ('a-size-medium a-color-price')})
+            try:
+                price = http.strip_html(price)
+            except TypeError:
+                price = "Not Available"
+        azid = re.match(r'^.*\/dp\/([\w]+)\/.*',url).group(1)
+        
 
     return u'(\x02{}\x02) {}, https://amzn.com/{}'.format(price, title.decode('ascii', 'ignore'), azid)
