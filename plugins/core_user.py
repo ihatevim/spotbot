@@ -218,7 +218,8 @@ def horoscope(inp, db=None, notice=None, nick=None):
 
 
     if sign and save: database.set(db,'users','horoscope',sign,'nick',nick)
-
+    horoscopetxt = horoscopetxt.rsplit('.', 2)[0]
+    horoscopetxt += '.'
     return u"{}".format(horoscopetxt)
 
 
