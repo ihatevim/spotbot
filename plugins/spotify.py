@@ -41,6 +41,8 @@ def spotify(inp):
     except IndexError:
         return "Could not find track."
     url = sptfy(track)
+    if url == "Unable to shorten URL: There is a restriction of 10 seconds between submissions.":
+        url = track
     return u"\x02{}\x02 by \x02{}\x02 - \x02{}\x02".format(data["tracks"]["items"][0]["name"],
                                                            data["tracks"]["items"][0]["artists"][0]["name"], url)
 
