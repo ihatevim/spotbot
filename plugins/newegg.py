@@ -1,7 +1,7 @@
 from util import hook, http, text, web
 import json
+import requests
 import re
-
 ## CONSTANTS
 
 ITEM_URL = "http://www.newegg.com/Product/Product.aspx?Item={}"
@@ -51,7 +51,7 @@ def format_item(item, show_url=True):
 
     if show_url:
         # create the item URL and shorten it
-        url = web.try_isgd(ITEM_URL.format(item["NeweggItemNumber"]))
+        url = ITEM_URL.format(item["NeweggItemNumber"])
         return u"\x02{}\x02 ({}) - {} - {} - {}".format(title, price, rating,
                                                     tag_text, url)
     else:
@@ -64,8 +64,17 @@ def format_item(item, show_url=True):
 @hook.regex(*NEWEGG_RE)
 def newegg_url(match):
     item_id = match.group(1)
-    item = http.get_json(API_PRODUCT.format(item_id))
+	
+    # newegg ur hurting my feelings
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) '
+                      'Version/5.1 Mobile/9A334 Safari/7534.48.3',
+        'Referer': 'http://www.newegg.com/'
+    }
+
+    item = requests.get(API_PRODUCT.format(item_id), headers=headers).json()
     return format_item(item, show_url=False)
+
 
 
 @hook.command
@@ -77,18 +86,30 @@ def newegg(inp):
         "Keyword": inp,
         "Sort": "FEATURED"
     }
-
+    # i need to lie to apis now too?
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) '
+                      'Version/5.1 Mobile/9A334 Safari/7534.48.3',
+        'Referer': 'http://www.newegg.com/'
+    }
     # submit the search request
-    r = http.get_json(
-      'http://www.ows.newegg.com/Search.egg/Advanced', 
-      post_data = json.dumps(request)
-    )
+    try:
+        request = requests.post(
+            'http://www.ows.newegg.com/Search.egg/Advanced',
+            data=json.dumps(request).encode('utf-8'),
+            headers=headers
+        )
+    except (requests.exceptions.HTTPError, requests.exceptions.ConnectionError) as e:
+        return "Unable to find product: {}".format(e)
+
+    r = request.json()
+
+    if r.get("Description", False):
+        return "Newegg Error: {Description} (\x02{Code}\x02)". format(**r)
 
     # get the first result
     if r["ProductListItems"]:
-        item = r["ProductListItems"][0]
-        return format_item(item)
+        return format_item(r["ProductListItems"][0])
     else:
         return "No results found."
-
 
