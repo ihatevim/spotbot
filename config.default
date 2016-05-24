@@ -11,6 +11,7 @@
     "exhentai": "username:password", 
     "geoip": "INSERT API KEY FROM ipinfodb.com HERE", 
     "lastfm": "", 
+    "google_dev_key": "",
     "mc_pass": "INSERT minecraft PASSWORD HERE", 
     "mc_user": "INSERT minecraft USERNAME HERE", 
     "rottentomatoes": "", 
