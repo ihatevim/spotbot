@@ -86,7 +86,7 @@ def weatherunderground(inp, nick=None, reply=None, db=None, notice=None, bot=Non
     api_key = bot.config.get("api_keys", {}).get("wunderground", None)
     dev_key = bot.config.get("api_keys", {}).get("google_dev_key", None)
     if not api_key: return "error: missing api key"
-
+    if not dev_key: return "error: missing google dev key"
     if '@' in inp:
         nick = inp.split('@')[1].strip()
         loc = database.get(db,'users','location','nick',nick)
