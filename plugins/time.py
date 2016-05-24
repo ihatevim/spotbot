@@ -4,11 +4,97 @@ from util.text import capitalize_first
 from bs4 import BeautifulSoup
 import urllib2
 import re
+import requests
+# Define some constants
+base_url = 'https://maps.googleapis.com/maps/api/'
+geocode_api = base_url + 'geocode/json'
+timezone_api = base_url + 'timezone/json'
 
 headers = {'User-Agent':'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.107 Safari/537.36','Upgrade-Insecure-Requests': '1','x-runtime': '148ms'}
 
-@hook.command('t', autohelp=False)
-@hook.command('time', autohelp=False)
+bias = None
+def check_status(status, api):
+    """ A little helper function that checks an API error code and returns a nice message.
+        Returns None if no errors found """
+    if status == 'REQUEST_DENIED':
+        return 'The ' + api + ' API is off in the Google Developers Console.'
+    elif status == 'ZERO_RESULTS':
+        return 'No results found.'
+    elif status == 'OVER_QUERY_LIMIT':
+        return 'The ' + api + ' API quota has run out.'
+    elif status == 'UNKNOWN_ERROR':
+        return 'Unknown Error.'
+    elif status == 'INVALID_REQUEST':
+        return 'Invalid Request.'
+    elif status == 'OK':
+        return None
+    else:
+        # !!!
+        return 'Unknown Demons.'
+@hook.command("t", autohelp=False)
+@hook.command("time", autohelp=False)
+def time_command(inp, nick='', db=None, bot=None, notice=None):
+    """<location> -- Gets the current time in <location>."""
+    dev_key = bot.config.get("api_keys", {}).get("google_dev_key")
+    if not dev_key:
+        return "This command requires a Google Developers Console API key."
+
+    save = True
+
+    if '@' in inp:
+        nick = inp.split('@')[1].strip()
+        text = database.get(db,'users','location','nick',nick)
+        if not text: return "No location stored for {}.".format(nick.encode('ascii', 'ignore'))
+    else:
+        text = database.get(db,'users','location','nick',nick)
+        if not inp:
+            if not text:
+                notice(time.__doc__)
+                return "database is empty"
+        else:
+            # if not location: save = True
+            if " dontsave" in inp: save = False
+            text = inp
+    # Use the Geocoding API to get co-ordinates from the input
+    params = {"address": text, "key": dev_key}
+    if bias:
+        params['region'] = bias
+
+    json = requests.get(geocode_api, params=params).json()
+
+    error = check_status(json['status'], "geocoding")
+    if error:
+        return error
+
+    result = json['results'][0]
+
+    location_name = result['formatted_address']
+    location = result['geometry']['location']
+
+    # Now we have the co-ordinates, we use the Timezone API to get the timezone
+    formatted_location = "{lat},{lng}".format(**location)
+
+    epoch = time.time()
+
+    params = {"location": formatted_location, "timestamp": epoch, "key": dev_key}
+    json = requests.get(timezone_api, params=params).json()
+
+    error = check_status(json['status'], "timezone")
+    if error:
+        return error
+
+    # Work out the current time
+    offset = json['rawOffset'] + json['dstOffset']
+
+    # I'm telling the time module to parse the data as GMT, but whatever, it doesn't matter
+    # what the time module thinks the timezone is. I just need dumb time formatting here.
+    raw_time = time.gmtime(epoch + offset)
+    formatted_time = time.strftime('%I:%M %p, %A, %B %d, %Y', raw_time)
+
+    timezone = json['timeZoneName']
+
+    return "\x02{}\x02 - {} ({})".format(formatted_time, location_name, timezone)
+@hook.command('time2', autohelp=False)
 def timefunction2(inp, nick="", reply=None, db=None, notice=None):
     "time [location] [dontsave] | [@ nick] -- Gets time for <location>."
 
@@ -39,7 +125,7 @@ def timefunction2(inp, nick="", reply=None, db=None, notice=None):
         time = filter(None, http.strip_html(soup.find('div', attrs={'id': re.compile('twd')}).renderContents().strip()))
         details = filter(None, http.strip_html(soup.find('div', attrs={'id': re.compile('dd')}).renderContents().strip()))
         prefix = filter(None, http.strip_html(soup.find('div', attrs={'id': re.compile('msgdiv')}).renderContents().strip()))
-    except urllib2.HTTPError:
+    except IndexError:
         return "Could not get time for that location."
 
     return formatting.output('Time', [u'{} {}, {}'.format(prefix.decode('ascii', 'ignore'), time, details)])
