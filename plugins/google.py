@@ -8,10 +8,10 @@ import re
 def api_get(query):
     """Use the RESTful Google Search API"""
     service = build("customsearch", "v1",
-    developerKey = "")
+    developerKey = dev_key)
     json = service.cse().list(
         q=query,
-        cx='001324521326870111314:zxdfrjtmtu4',
+        cx = cse_key,
     ).execute()
     return json
 
@@ -21,6 +21,10 @@ def api_get(query):
 def google(inp,db=None,chan=None,bot=None):
     """google <query> -- Returns first google search result for <query>."""
     trimlength = database.get(db,'channels','trimlength','chan',chan)
+    global dev_key 
+    global cse_key
+    dev_key = bot.config.get("api_keys", {}).get("google_dev_key", None)
+    cse_key = bot.config.get("api_keys", {}).get("google_cse_key", None)
     if not trimlength: trimlength = 9999 
     json = api_get(inp)
     totalresults = json['queries']['request'][0]['totalResults']
