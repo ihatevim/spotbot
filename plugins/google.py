@@ -8,7 +8,7 @@ import re
 def api_get(query):
     """Use the RESTful Google Search API"""
     service = build("customsearch", "v1",
-    developerKey = bot.config.get("api_keys", {}).get("google_dev_key", None))
+    developerKey = "")
     json = service.cse().list(
         q=query,
         cx='001324521326870111314:zxdfrjtmtu4',
@@ -18,7 +18,7 @@ def api_get(query):
 @hook.command('search')
 @hook.command('g')
 @hook.command
-def google(inp,db=None,chan=None):
+def google(inp,db=None,chan=None,bot=None):
     """google <query> -- Returns first google search result for <query>."""
     trimlength = database.get(db,'channels','trimlength','chan',chan)
     if not trimlength: trimlength = 9999 
