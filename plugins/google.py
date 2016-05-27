@@ -4,14 +4,14 @@ import urllib2
 from googleapiclient.discovery import build
 from util import hook, http, text, database, web
 import re
-"""i didnt put the api keys for this in the config file. im too lazy to do it, have this comment instead"""
+
 def api_get(query):
     """Use the RESTful Google Search API"""
     service = build("customsearch", "v1",
-    developerKey="")
+    developerKey="AIzaSyABAncPEG6Ty9YxeBDX3TPs90SEkwZT1b4")
     json = service.cse().list(
         q=query,
-        cx='',
+        cx='001324521326870111314:zxdfrjtmtu4',
     ).execute()
     return json
 
