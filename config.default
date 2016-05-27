@@ -9,7 +9,10 @@
     "bitly_user": "INSERT USERNAME FROM bitly.com HERE", 
     "ebay": "", 
     "exhentai": "username:password", 
-    "geoip": "INSERT API KEY FROM ipinfodb.com HERE", 
+    "geoip": "INSERT API KEY FROM ipinfodb.com HERE",
+    "google_dev_key":
+    "google_cse_key":
+    "genius_access_token":
     "lastfm": "", 
     "google_dev_key": "",
     "mc_pass": "INSERT minecraft PASSWORD HERE", 
