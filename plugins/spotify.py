@@ -3,14 +3,6 @@ import re
 from util import hook, http, web
 from urllib import urlencode
 
-gateway = 'http://open.spotify.com/{}/{}'  # http spotify gw address
-spuri = 'spotify:{}:{}'
-
-spotify_re = (r'(spotify:(track|album|artist|user):([a-zA-Z0-9]+))', re.I)
-http_re = (r'(open\.spotify\.com\/(track|album|artist|user)\/'
-           '([a-zA-Z0-9]+))', re.I)
-
-
 def sptfy(inp, sptfy=False):
     shortenurl = "http://sptfy.com/index.php"
     data = urlencode({'longUrl': inp, 'shortUrlDomain': 1, 'submitted': 1, "shortUrlFolder": 6, "customUrl": "",
