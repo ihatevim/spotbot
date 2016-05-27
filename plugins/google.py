@@ -8,7 +8,7 @@ import re
 def api_get(query):
     """Use the RESTful Google Search API"""
     service = build("customsearch", "v1",
-    developerKey="AIzaSyABAncPEG6Ty9YxeBDX3TPs90SEkwZT1b4")
+    developerKey = bot.config.get("api_keys", {}).get("google_dev_key", None))
     json = service.cse().list(
         q=query,
         cx='001324521326870111314:zxdfrjtmtu4',
