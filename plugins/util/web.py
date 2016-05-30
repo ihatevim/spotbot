@@ -5,7 +5,7 @@ import urlnorm
 import json
 import urllib
 import yql
-
+import requests
 short_url = "http://is.gd/create.php"
 paste_url = "http://hastebin.com"
 yql_env = "http://datatables.org/alltables.env"
@@ -24,14 +24,14 @@ class ShortenError(Exception):
 
 def isgd(url):
     """ shortens a URL with the is.gd API """
-    url = urlnorm.normalize(url.encode('utf-8'), assume_scheme='http')
-    params = urllib.urlencode({'format': 'json', 'url': url})
-    request = http.get_json("http://is.gd/create.php?%s" % params)
+    p = {'format': 'json', 'url': url}
+    r = requests.get('http://is.gd/create.php', params=p)
+    j = r.json()
 
-    if "errorcode" in request:
-        raise ShortenError(request["errorcode"], request["errormessage"])
+    if 'shorturl' in j:
+        return j['shorturl']
     else:
-        return request["shorturl"]
+        raise ShortenError(j['errormessage'], r)
 
 
 def try_isgd(url):
