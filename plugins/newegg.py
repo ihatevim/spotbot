@@ -51,7 +51,7 @@ def format_item(item, show_url=True):
 
     if show_url:
         # create the item URL and shorten it
-        url = ITEM_URL.format(item["NeweggItemNumber"])
+        url = web.try_isgd(ITEM_URL.format(item["NeweggItemNumber"]))
         return u"\x02{}\x02 ({}) - {} - {} - {}".format(title, price, rating,
                                                     tag_text, url)
     else:
