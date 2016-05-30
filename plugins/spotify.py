@@ -14,10 +14,12 @@ def sptfy(inp, sptfy=False):
     try:
         link = soup.find('div', {'class': 'resultLink'}).text.strip()
         return link
+    #if we can't shorten the url explain why and use isgd instead
     except:
         message = "Unable to shorten URL: %s" % \
                   soup.find('div', {'class': 'messagebox_text'}).find('p').text.split("<br/>")[0]
-        return message
+        print message
+        return web.try_isgd(inp)
 
 @hook.command('sp')
 @hook.command
